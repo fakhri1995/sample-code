@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Daftar Riwayat Naskah</title>
+    <div th:replace="fragments/header :: header-css"/>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"/>
+
+<style>
+    ul.tabs{
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+    }
+    ul.tabs li{
+        background: none;
+        color: #222;
+        display: inline-block;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+
+    ul.tabs li.current{
+        background: #ededed;
+        color: #222;
+    }
+
+    .tab-content{
+        display: none;
+        padding: 15px;
+    }
+
+    .tab-content.current{
+        display: inherit;
+    }
+</style>
+
+<div class="container">
+    <div th:replace="fragments/header :: alert"/>
+
+
+
+    <div th:if="${migrationStatus != null}">
+        <br/>
+        <h2 th:text="${migrationStatus}"></h2>
+        <br/>
+        <br/>
+    </div>
+    <div class="panel panel-default">
+
+        <ul class="tabs">
+            <li class="tab-link" data-tab="tab-3">Draft</li>
+            <li class="tab-link current" data-tab="tab-1">Dalam Proses</li>
+            <li class="tab-link" data-tab="tab-2">Riwayat</li>
+            <li class="tab-link" data-tab="tab-4">Ditolak</li>
+        </ul>
+
+        <div class="row">
+            <div class="col-lg-1">
+
+            </div>
+            <div class="col-sm-3">
+                <br/>
+                <a th:href="@{/buat-surat}" class="btn btn-danger btn-block"><i
+                        class="glyphicon glyphicon-plus"></i> Tambah Naskah Dinas</a>
+            </div>
+        </div>
+
+        <div id="tab-3" class="tab-content">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4>Daftar Draft Naskah Dinas</h4></div>
+            </div>
+            <div class="panel-body">
+                <table id="tableSuratOnDraft" class="table table-striped table-bordered table-condensed" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center">No</th>
+                        <th style="text-align: center">Nomor Naskah</th>
+                        <th style="text-align: center">Kepada</th>
+                        <th style="text-align: center">Perihal</th>
+                        <th style="text-align: center">Tanggal</th>
+                        <th style="text-align: center">Status</th>
+                        <th style="text-align: center">Aksi</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div id="tab-1" class="tab-content current">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4>Daftar Naskah Dinas</h4></div>
+            </div>
+            <div class="panel-body">
+                <table id="tableSuratOnRiwayat" class="table table-striped table-bordered table-condensed" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center">No</th>
+                        <th style="text-align: center">Nomor Naskah</th>
+                        <th style="text-align: center">Kepada</th>
+                        <th style="text-align: center">Perihal</th>
+                        <th style="text-align: center">Tanggal</th>
+                        <th style="text-align: center">Status</th>
+                        <th style="text-align: center">Aksi</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div id="tab-2" class="tab-content">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4>Riwayat Naskah Dinas</h4></div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table id="tableSuratOnApproved" class="table table-striped table-bordered table-condensed" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th style="text-align: center">No</th>
+                            <th style="text-align: center">Nomor Naskah</th>
+                            <th style="text-align: center">Kepada</th>
+                            <th style="text-align: center">Perihal</th>
+                            <th style="text-align: center">Tanggal</th>
+                            <th style="text-align: center">Status</th>
+                            <th style="text-align: center">Aksi</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="tab-4" class="tab-content">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4>Naskah Dinas Ditolak</h4></div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table id="tableSuratUnapproved" class="table table-striped table-bordered table-condensed" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th style="text-align: center">No</th>
+                            <th style="text-align: center">Nomor Naskah</th>
+                            <th style="text-align: center">Kepada</th>
+                            <th style="text-align: center">Perihal</th>
+                            <th style="text-align: center">Tanggal</th>
+                            <th style="text-align: center">Status</th>
+                            <th style="text-align: center">Aksi</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer" />
+<script th:inline="javascript">
+    $(document).ready(function(){
+
+        $('ul.tabs li').click(function(){
+            var tab_id = $(this).attr('data-tab');
+
+            $('ul.tabs li').removeClass('current');
+            $('.tab-content').removeClass('current');
+
+            $(this).addClass('current');
+            $("#"+tab_id).addClass('current');
+        })
+
+    })
+
+    $(function () {
+        var table = $('#tableSuratOnRiwayat').DataTable({
+            searching: false,
+            serverSide: true,
+            stateSave: false,
+            ajax: {
+                url: [[@{/daftar-riwayat}]],
+        type: 'POST',
+            data: function (d) {
+            d.statusId= $('#statusId').val();
+        }
+    },
+        columns: [
+            {
+                "data": "id",
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            { "data": "noSurat"},
+            { "data": "kepada" },
+            { "data": "perihal" },
+            { "data": "tanggalPembuatanStr" },
+            { "data": "namaStatus" },
+            { "data": "id" }//quick hack. Kolom Operasi
+        ],
+            columnDefs: [ {
+            "targets": 6, //kolom Operasi tanpa sort
+            "orderable": false,
+        }],
+
+            createdRow: function ( row, data, index ) {
+
+/*            $('td', row).eq(4)
+                .text(function() {
+                    if (data.statusId == 0) {
+                        return "Sedang di Approve";
+                    } else if (data.statusId == 1) {
+                        return "Tidak di Approve";
+                    } else if (data.statusId == 2) {
+                        return "Sedang di Tanda Tangan";
+                    } else if (data.statusId == 3) {
+                        return "Tidak di Tanda Tangan";
+                    } else if (data.statusId == 4) {
+                        return "Siap Dikirim BSRE";
+                    } else if (data.statusId == 5) {
+                        return "Sudah Dikirim BSRE";
+                    } else {
+                        return "-";
+                    }
+                })
+                .css("text-align", "center");*/
+
+            var detailSurat = $('<a />')
+                .attr('href', [[ @{/detail-surat-paraf/} ]] + data.id)
+        .text('Detail');
+
+            var operation = $('<div class="unwrap text-center"/>');
+            operation.append(detailSurat);
+
+            $('td', row).eq(6).html(operation);
+        }
+    });
+
+        var table2 = $('#tableSuratOnApproved').DataTable({
+            searching: false,
+            serverSide: true,
+            stateSave: false,
+            ajax: {
+                url: [[@{/daftar-bsre}]],
+        type: 'POST',
+            data: function (d) {
+            d.statusId= 5;
+        }
+    },
+        columns: [
+            {
+                "data": "id",
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            { "data": "noSurat"},
+            { "data": "kepada" },
+            { "data": "perihal" },
+            { "data": "tanggalPembuatanStr" },
+            { "data": "namaStatus" },
+            { "data": "id" }//quick hack. Kolom Operasi
+        ],
+            columnDefs: [ {
+            "targets": 6, //kolom Operasi tanpa sort
+            "orderable": false,
+        }],
+
+            createdRow: function ( row, data, index ) {
+
+            var detailSurat = $('<a />')
+                .attr('href', [[ @{/detail-surat-paraf/} ]] + data.id)
+        .text('Detail');
+
+            var operation = $('<div class="unwrap text-center"/>');
+            operation.append(detailSurat);
+
+            $('td', row).eq(6).html(operation);
+
+        }
+    });
+
+        var table3 = $('#tableSuratOnDraft').DataTable({
+            searching: false,
+            serverSide: true,
+            stateSave: false,
+            ajax: {
+                url: [[@{/daftar-riwayat}]],
+        type: 'POST',
+            data: function (d) {
+            d.statusId= -1;
+        }
+    },
+        columns: [
+            {
+                "data": "id",
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            { "data": "noSurat"},
+            { "data": "kepada" },
+            { "data": "perihal" },
+            { "data": "tanggalPembuatanStr" },
+            { "data": "namaStatus" },
+            { "data": "id" }//quick hack. Kolom Operasi
+        ],
+            columnDefs: [ {
+            "targets": 6, //kolom Operasi tanpa sort
+            "orderable": false,
+        }],
+
+            createdRow: function ( row, data, index ) {
+
+            var detailSurat = $('<a />')
+                .attr('href', [[ @{/buat-surat/} ]] + data.id)
+        .text('Edit');
+
+            var operation = $('<div class="unwrap text-center"/>');
+            operation.append(detailSurat);
+
+            $('td', row).eq(6).html(operation);
+
+        }
+    });
+
+        var table4 = $('#tableSuratUnapproved').DataTable({
+            searching: false,
+            serverSide: true,
+            stateSave: false,
+            ajax: {
+                url: [[@{/daftar-bsre}]],
+        type: 'POST',
+            data: function (d) {
+            d.statusId= -2;
+        }
+    },
+        columns: [
+            {
+                "data": "id",
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            { "data": "noSurat"},
+            { "data": "kepada" },
+            { "data": "perihal" },
+            { "data": "tanggalPembuatanStr" },
+            { "data": "namaStatus" },
+            { "data": "id" }//quick hack. Kolom Operasi
+        ],
+            columnDefs: [ {
+            "targets": 6, //kolom Operasi tanpa sort
+            "orderable": false,
+        }],
+
+            createdRow: function ( row, data, index ) {
+
+            var detailSurat = $('<a />')
+                .attr('href', [[ @{/detail-surat-paraf/} ]] + data.id)
+        .text('Detail');
+
+            var operation = $('<div class="unwrap text-center"/>');
+            operation.append(detailSurat);
+
+            $('td', row).eq(6).html(operation);
+
+        }
+    });
+    });
+</script>
+
+</body>
+</html>

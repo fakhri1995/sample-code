@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}">Aset</title>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="msapplication-TileColor" content="#0061da">
+    <meta name="theme-color" content="#1643a3">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <link rel="stylesheet" type="text/css" href="assets/plugins/pivot-table/pivot.css">
+
+    <link href="assets/css/dashboard.css" rel="stylesheet" />
+    <!-- Font family -->
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa:300,400,700" rel="stylesheet">
+    <!--C3 Charts css -->
+<!--    <link href="assets/plugins/charts-c3/c3-chart.css" rel="stylesheet" />-->
+    <!-- Custom scroll bar css-->
+    <link href="assets/plugins/scroll-bar/jquery.mCustomScrollbar.css" rel="stylesheet" />
+    <!--Horizontal css -->
+    <link href="assets/plugins/horizontal-menu/dropdown-effects/fade-down.css" rel="stylesheet" />
+    <link href="assets/plugins/horizontal-menu/horizontal.css" rel="stylesheet" />
+    <!-- jvectormap css -->
+    <link href="assets/plugins/jvectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+    <!---Font icons css-->
+    <link href="assets/plugins/iconfonts/plugin.css" rel="stylesheet" />
+    <link  href="assets/fonts/fonts/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .pvtUi{
+            margin-left: 5%;
+            margin-bottom: 1%;
+        }
+    </style>
+</head>
+<body class="app sidebar-mini rtl">
+<div th:replace="fragments/header :: header"/>
+
+<!--Global-Loader-->
+<div id="global-loader"></div>
+
+<div class="page">
+    <div class="page-main">
+        <!--content-area-->
+        <div class="content-area">
+            <div class="container">
+
+                <!-- page-header -->
+                <div class="page-header">
+                    <h4 th:text="${menu}" class="page-title">Aset</h4>
+                </div>
+                <!-- End page-header -->
+
+                <!-- row -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h3 th:text="${title}">Daftar Seluruh Bangunan</h3>
+                        <br/>
+                    </div>
+                </div>
+                <!-- End row -->
+            </div>
+            <div id="output" style="overflow: scroll;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Sedang Loading....</div>
+            <!-- End Footer-->
+        </div>
+        <!-- End content-area-->
+    </div>
+</div>
+
+<div>
+    <footer class="footer">
+        <div class="container">
+            <div class="row align-items-center flex-row-reverse">
+                <div class="col-lg-12 col-sm-12   text-center">
+
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Page-->
+
+
+    <!-- Back to top -->
+    <a href="#top" id="back-to-top"><i class="fa fa-angle-up"></i></a>
+
+    <!-- Jquery js-->
+    <script src="assets/js/vendors/jquery-3.2.1.min.js"></script>
+
+    <!--Bootstrap js-->
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+
+    <!--Jquery Sparkline js-->
+    <script src="assets/js/vendors/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle js-->
+    <script src="assets/js/vendors/circle-progress.min.js"></script>
+
+    <!-- Star Rating js-->
+    <script src="assets/plugins/rating/jquery.rating-stars.js"></script>
+
+    <!-- Flot Chart js-->
+    <script src="assets/plugins/flot/jquery.flot.js"></script>
+    <script src="assets/plugins/flot/jquery.flot.fillbetween.js"></script>
+    <script src="assets/plugins/flot/jquery.flot.pie.js"></script>
+
+    <!--Jquery.knob js-->
+    <script src="assets/plugins/othercharts/jquery.knob.js"></script>
+
+    <!--Other charts js-->
+    <script src="assets/js/othercharts.js"></script>
+
+    <!-- Chart js -->
+    <script src="assets/plugins/chart/Chart.bundle.js"></script>
+    <script src="assets/plugins/chart/utils.js"></script>
+
+    <!-- Peity Chart js-->
+    <script src="assets/plugins/peitychart/jquery.peity.min.js"></script>
+    <script src="assets/plugins/peitychart/peitychart.init.js"></script>
+
+    <!-- Input Mask js -->
+    <script src="assets/plugins/input-mask/jquery.mask.min.js"></script>
+
+    <!-- Custom scroll bar js-->
+    <script src="assets/plugins/scroll-bar/jquery.mCustomScrollbar.concat.min.js"></script>
+
+    <!--Horizontal js-->
+    <script src="assets/plugins/horizontal-menu/horizontal.js"></script>
+
+    <!--Highcharts js-->
+    <script src="assets/plugins/highcharts/highcharts.js"></script>
+    <script src="assets/plugins/highcharts/highcharts-3d.js"></script>
+    <script src="assets/plugins/highcharts/exporting.js"></script>
+    <script src="assets/plugins/highcharts/export-data.js"></script>
+    <script src="assets/plugins/highcharts/histogram-bellcurve.js"></script>
+    <script src="assets/plugins/highcharts/solid-gauge.js"></script>
+
+<!--    &lt;!&ndash; Data tables js&ndash;&gt;-->
+<!--    <script src="assets/plugins/datatable/jquery.dataTables.min.js"></script>-->
+<!--    <script src="assets/plugins/datatable/dataTables.bootstrap4.min.js"></script>-->
+<!--    <script src="assets/plugins/datatable/datatable.js"></script>-->
+<!--    <script src="assets/plugins/datatable/datatable-2.js"></script>-->
+<!--    <script src="assets/plugins/datatable/dataTables.responsive.min.js"></script>-->
+
+    <!--Select2 js -->
+    <script src="assets/plugins/select2/select2.full.min.js"></script>
+
+    <!-- Search Js-->
+    <script src="assets/js/prefixfree.min.js"></script>
+
+    <!-- Index js -->
+<!--    <script src="assets/js/aset-daftar-seluruh-bangunan.js"></script>-->
+
+    <!-- ECharts js -->
+    <script src="./assets/plugins/echarts/echarts.js"></script>
+
+    <!-- Custom js-->
+    <script src="assets/js/custom.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="assets/plugins/pivot-table-dependency/c3-0-4-11.min.css">
+    <script type="text/javascript" src="assets/plugins/pivot-table-dependency/d3-3-5-5.min.js"></script>
+    <script type="text/javascript" src="assets/plugins/pivot-table-dependency/c3-0-4-11.min.js"></script>
+    <script type="text/javascript" src="assets/plugins/pivot-table-dependency/jquery-1-11-2.min.js"></script>
+    <script type="text/javascript">
+        var jQuery_1_11_2 = $.noConflict(true);
+        $(function(e){
+            renderChart()
+            function renderChart() {
+                let derivers = $.pivotUtilities.derivers;
+                let renderers = $.extend($.pivotUtilities.renderers,
+                    $.pivotUtilities.c3_renderers);
+
+                $.ajax({
+                    type: "GET",
+                    url: [(${uriBackend})],
+                    success: function (response) {
+                        var functionsConfig = {
+                            rendererName: [(${chartForm})],
+                            rowOrder: "value_z_to_a", colOrder: "value_z_to_a",
+                            rendererOptions: {
+                                c3: { data: {colors: {
+                                            Liberal: '#dc3912', Conservative: '#3366cc', NDP: '#ff9900',
+                                            Green:'#109618', 'Bloc Quebecois': '#990099'
+                                        }}}
+                            }
+                        }
+
+                        // this is your saved/serialized config in a string
+                        var serializedConfig = [(${config})];
+
+                        // deserialized it into an object
+                        var deserializedConfig = JSON.parse(serializedConfig)
+
+                        // merge the deserialized object with the functions object
+                        var mergedConfig = $.extend({}, functionsConfig, deserializedConfig);
+                        $("#output").pivotUI(JSON.parse(response.replace(/null/g, '"Tidak Diketahui"')).data, mergedConfig);
+
+                    }
+                });
+            }
+        })
+
+    </script>
+    <script type="text/javascript" src="assets/plugins/pivot-table-dependency/jquery-ui-1-11-4.min.js"></script>
+    <script type="text/javascript" src="assets/plugins/pivot-table-dependency/jquery.ui.touch-punch-0-2-3.min.js"></script>
+
+    <script type="text/javascript" src="assets/plugins/pivot-table/pivot.js"></script>
+    <script type="text/javascript" src="assets/plugins/pivot-table/c3_renderers.js"></script>
+</div>
+
+</body>
+</html>

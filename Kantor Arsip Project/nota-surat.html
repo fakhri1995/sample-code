@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
+><head>
+    <title>Title</title>
+    <style>
+
+        pre {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            background-color: transparent !important;
+            white-space: pre-wrap !important;
+            word-break: keep-all; !important;
+        }
+
+        .timesnewroman {
+            font-family: "Times New Roman", Times, serif;
+            font-size:16px
+        }
+
+        #ttdelektronik {
+            font-family: "Courier New", Courier;
+            font-size: 10px;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 700;
+            line-height: 16.5px;
+        }
+
+        .ttdelektronikbigger {
+            font-family: "Courier New", Courier;
+            font-size: 11px;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 700;
+            line-height: 16.5px;
+        }
+
+        .page {
+            size: A4;
+            margin-left: 3cm;
+            margin-right: 2cm;
+            margin-bottom: 3cm;
+            background-repeat: no-repeat;
+            background-size: 210mm;
+        }
+
+        .capitalize {
+            text-transform: capitalize;
+        }
+
+        #page {
+            border-collapse: collapse;
+        }
+
+        #page td {
+           padding: 0;
+           margin: 0;
+        }
+
+        .tfooter {
+            text-align: center;
+            font-size:9.5px;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="header-ui" width="100%" class="nota-dinas" style="text-align: center;">
+    <img th:if="${cetak}" th:src="@{'~/home/fakhri/images/'+${headerName}}" alt="ui-header" style="width: 650px;"/>
+    <img th:if="${cetak == null or !cetak}" th:src="@{'~/ciptanaskah/home/fakhri/images/'+${headerName}}" alt="ui-header" style="width: 650px;"/>
+</div>
+<div class="page">
+    <div class="timesnewroman container nota-dinas" style="width:100%;">
+        <br/>
+        <table style="margin:auto;width:100%;">
+            <tbody>
+                <tr>
+                    <td colspan="2">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <br/>
+                        <span>NOTA DINAS</span><br/>
+                        <span>Nomor: </span><span th:text="${surat.noSurat}" class="noSuratPrint">...</span><br/><br/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table width="100%">
+                            <tr>
+                                <td valign="top" style="width: 60px;"><pre>Yth.     : </pre></td>
+                                <td style="text-align: left;">
+                                    <div th:if="${cetak}" class="kepadaPrintNota" >
+                                        <ol th:if="${surat.tipe == 2 and #lists.size(kepada) > 1}" style="margin-left: -27px; position: relative; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
+                                            <li class="capitalize" th:each="kepadaOne: ${kepada}" th:text="${kepadaOne.jabatan}"></li>
+                                        </ol>
+                                        <span class="capitalize" th:if="${surat.tipe == 2 and #lists.size(kepada) == 1}" th:text="${kepada[0].jabatan}" style="position: relative; top: 0px;"></span>
+                                    </div>
+                                    <div th:if="${cetak == null or !cetak}" class="kepadaPrintNota" >
+                                        <ol th:if="${surat.tipe == 2 and #lists.size(kepada) > 1}" style="margin-left: -27px; position: relative; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
+                                            <li class="capitalize" th:each="kepadaOne: ${kepada}" th:text="${kepadaOne.jabatan}"></li>
+                                        </ol>
+                                        <span class="capitalize" th:if="${surat.tipe == 2 and #lists.size(kepada) == 1}" th:text="${kepada[0].jabatan}" style="position: relative; top: 0px;"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td valign="top" style="width: 45px;"><pre>Dari     : </pre></td>
+                                <td style="text-align: left;">
+                                    <pre><span th:text="${jabatanSigner}" class="dariPrint">...</span></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td valign="top" style="width: 45px;"><pre>Perihal : </pre></td>
+                                <td style="text-align: left;">
+                                    <pre><span th:text="${surat.perihal}" class="perihalPrint">...</span></pre>
+                                </td>
+                            </tr>
+                            <!--<pre>Sifat     : <span th:text="${surat.sifat}" class="sifatPrint">...</span></pre>-->
+                        </table>
+                        <br/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" th:utext="${surat.isiSurat}" class="isi" style="text-align: justify;">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <br/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50%;" valign="bottom">
+                        <div th:switch="${tembusan}">
+                            <span th:if="${tembusan == null}" class="tembusanTitle"></span>
+                            <span th:if="${tembusan != null}" class="tembusanTitle">Tembusan:</span>
+                        </div>
+                    </td>
+                    <td style="width: 50%;">
+                        <span th:text="${tanggal}">tanggal</span><br/>
+                        <table>
+                            <tr>
+                                <td colspan="2">
+                                    <span th:text="${jabatanSigner} ?: 'Nama Jabatan'" class="namaJabatanPrint">Nama Jabatan</span><span>,</span><br/>
+                                </td>
+                            </tr>
+                            <tr th:if="${cetak}">
+                                <td width="20%">
+                                    <img  th:src="@{'~/home/fakhri/cap/'+${headerName}}" alt="ui-header" style="width: 100px;"/>
+                                </td>
+                                <td width="80%">
+                                    <span id="ttdelektronik" style="white-space: pre !important; word-break: keep-all; !important;">Telah ditandatangani<br/>Secara elektronik oleh:</span>
+                                    <!--th:if="${surat.statusId > 3 or cetak}"-->
+
+                                </td>
+                            </tr>
+                            <tr th:if="${cetak == null or !cetak}">
+                                <td>
+                                    <br/><br/><br/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <span th:text="${namaSigner} ?: 'Nama Pejabat'" class="namaPejabatPrint">Nama Pejabat</span><br/>
+                                    <span>NIP<span th:text="${nip}" class="nipPrint">327103010</span></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="width: 100%">
+                        <div class="tembusanPrint">
+                            <ol th:if="${tembusan != null and #lists.size(tembusan) > 1}" style="margin-left: -20px; position: relative; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">
+                                <li class="capitalize" th:each="tembusanOne: ${tembusan}" th:text="${tembusanOne.jabatan}"></li>
+                            </ol>
+                            <span th:if="${tembusan != null and #lists.size(tembusan) == 1}" class="capitalize" th:each="tembusanOne: ${tembusan}" th:text="${tembusanOne.jabatan}"></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot th:if="${cetak}" class="tfooter">
+                <tr>
+                    <td colspan="2">
+                        <div>
+                            <hr/>
+                            <span>Naskah dinas ini telah ditandatangani secara elektronik dengan otorisasi dari Balai Sertifikasi Elektronik. Tanda tangan secara elektronik memiliki kekuatan hukum dan akibat hukum yang sah serta berlaku sesuai dengan peraturan perundangan-undangan.</span>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+</body>
+
+
+</html>

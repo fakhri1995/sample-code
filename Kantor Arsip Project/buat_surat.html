@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+<head>
+    <title>Arsip UI - Buat Naskah</title>
+    <div th:replace="fragments/header :: header-css"/>
+</head>
+<style>
+    input {
+        width: 40%;
+    }
+    #noSurat {
+        border: none;
+    }
+
+</style>
+<!-- Theme included stylesheets -->
+<script src="https://tiny.pusilkom.com/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css" rel="stylesheet" />
+<body>
+<div th:replace="fragments/header :: header"/>
+<div class="container">
+
+    <div class="panel panel-default" id="formsurat">
+        <div class="panel-heading">
+            <div class="row">
+                <h4 class="col-sm-10">Buat Naskah Dinas</h4>
+            </div>
+        </div>
+
+        <div class="panel-body">
+            <form method="post" th:action="@{/buat-surat}" th:object="${surat}" class="form-horizontal" id="formBuatSurat" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" th:classappend="${#fields.hasErrors('noSurat') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Nomor Naskah<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <input type="text" th:field="*{noSurat}" id="noSurat" class="form-control" th:readonly="true"/>
+                                <input type="hidden" th:field="*{id}"/>
+                                <input type="hidden" th:field="*{file}"/>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{noSurat}"/>
+                            </div>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('tipe') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Jenis Naskah<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <select onchange="previewNoSurat(); changeForm();" th:field="*{tipe}"  id="tipe" class="form-control">
+                                    <option value="">Pilih Jenis Naskah</option>
+                                    <option th:each="tipe : ${listTemplate}" th:value="${tipe.id}" th:text="${tipe.tipe}"></option>
+                                </select>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{tipe}"/>
+                            </div>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('perihal') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Perihal<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <input type="text" th:field="*{perihal}" id="perihal" class="form-control"/>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{perihal}"/>
+                            </div>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('listApprover') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Approver</label>
+                            <div class="col-sm-10">
+                                <select id="listApprover" th:field="*{listApprover}" name="listApprover" class="form-control select2">
+                                </select>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{listApprover}"/>
+                            </div>
+                        </div>
+                        <div id="sifatHide" class="form-group" th:classappend="${#fields.hasErrors('sifat') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Sifat<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <select th:field="*{sifat}" id="sifat" nama="sifat" class="form-control">
+                                </select>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{sifat}"/>
+                            </div>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('tanggalPembuatanStr') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Tanggal<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <input th:field="*{tanggalPembuatanStr}" id="tanggal" class="form-control" th:readonly="true"/>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{tanggalPembuatanStr}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" th:classappend="${#fields.hasErrors('kepada') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Tujuan Naskah<font color="red">*</font></label>
+                            <div id="fieldKepada" class="col-sm-10">
+
+                            </div>
+                            <div id="fieldKepadaText" class="col-sm-10">
+                                <textarea onkeyup="validateKepada()" type="text" th:field="*{kepada}" id="kepada" name="kepada" class="form-control"/>
+                            </div>
+                            <span th:if="${!isSaveDraft}" class="help-block" th:errors="*{kepada}"/>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('tembusan') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Tembusan</label>
+                            <div class="col-sm-10">
+                                <select id="tembusan" th:field="*{tembusan}" name="tembusan" class="form-control">
+                                </select>
+                            </div>
+                            <span th:if="${!isSaveDraft}" class="help-block" th:errors="*{tembusan}"/>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('idKodeKlasifikasi') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Kode Klasifikasi<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <select onchange="previewNoSurat()" id="kodeKlasifikasi" th:field="*{idKodeKlasifikasi}" name="kodeKlasifikasi" class="form-control">
+                                </select>
+                                <span th:if="${!isSaveDraft}" class="help-block" th:errors="*{idKodeKlasifikasi}"/>
+                            </div>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('listSigner') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Pejabat Penandatangan<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <select onchange="previewNoSurat()" id="listSigner" th:field="*{listSigner}" name="listSigner" class="form-control">
+                                </select>
+                                <span th:if="${!isSaveDraft}" class="help-block" th:errors="*{listSigner}"/>
+                            </div>
+                        </div>
+                        <div class="form-group" th:classappend="${#fields.hasErrors('derajat') and !isSaveDraft} ? has-error">
+                            <label class="col-sm-2 control-label">Derajat<font color="red">*</font></label>
+                            <div class="col-sm-10">
+                                <select th:field="*{derajat}" id="derajat" class="form-control">
+                                    <option value="Biasa">Biasa (maks. 3 Hari)</option>
+                                    <option value="Segera">Segera (24 Jam)</option>
+                                    <option value="Sangat Segera">Sangat Segera (&#60;24 Jam)</option>
+                                </select>
+                                <span th:if="${!isSaveDraft}"  class="help-block" th:errors="*{derajat}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div class="form-group" th:classappend="${#fields.hasErrors('idOrganisasi')} ? has-error">-->
+                    <!--<label class="col-sm-2 control-label">Organisasi<font color="red">*</font></label>-->
+                    <!--<div class="col-sm-10">-->
+                        <!--<select onchange="previewNoSurat()" id="organisasi" th:field="*{idOrganisasi}" name="idOrganisasi" class="form-control select2">-->
+                        <!--</select>-->
+                        <!--<span class="help-block" th:errors="*{idOrganisasi}"/>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--div id="lampiranHide" class="form-group" th:classappend="${#fields.hasErrors('lampiran')} ? has-error">
+                    <label class="col-sm-2 control-label">Lampiran</label>
+                    <div class="col-sm-10">
+                        <input type="text" th:field="*{lampiran}" id="lampiran" name="lampiran"/>
+                        <span class="help-block" th:errors="*{lampiran}"/>
+                    </div>
+                </div-->
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Upload Lampiran  <h5><i>(File berekstensi .pdf dan tidak lebih dari 25MB)</i></h5></label>
+                    <p th:text="${errorText}" style="color: red;"></p>
+                    <div class="col-sm-10">
+                        <input class="col-sm-4" type="file" name="fileSurat" id="fileSurat" accept="application/pdf"/>
+                        <span class="help-block"/>
+                    </div>
+                    <div class="row" th:if="*{file != '' and file != null}"><br/><br/>
+                        <div class="col-sm-4">
+                            <a th:href="@{/download-lampiran/} + *{id}" target="_blank"><span th:text="*{file}"></span></a>
+                            <a data-toggle="modal" data-target="#confirm-delete"><i class="glyphicon glyphicon-trash"></i></a>
+                            <span class="help-block"/>
+                            <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4>Konfirmasi</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            Apakah anda yakin menghampus file lampiran?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                                            <a th:href="@{/hapus-lampiran/} +  *{id}" class="btn btn-danger btn-ok">Hapus</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+                <div class="form-group" th:classappend="${#fields.hasErrors('isiSurat') and !isSaveDraft} ? has-error">
+                    <div class="row">
+                        <label class="col-sm-2 control-label">Isi Naskah<font color="red">*</font> <h5><i>(Tekan Shift+Enter untuk memberikan 1 spasi)</i></h5></label>
+                    </div>
+                    <br/>
+                    <textarea id="isi-surat" th:field="*{isiSurat}"></textarea>
+                    <div class="row">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-10">
+                            <span th:if="${!isSaveDraft}" class="help-block" th:errors="*{isiSurat}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${!#lists.isEmpty(listKomentarApprover)}">
+                    <div class="col-sm-10">
+                        <h4>Komentar Approver</h4>
+                    </div>
+                    <div class="col-sm-8">
+                        <table class="table table-condensed">
+                            <tr>
+                                <th style="text-align: center">Nama</th>
+                                <th style="text-align: center">Tanggal</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Komentar</th>
+                            </tr>
+                            <tr th:each="approver : ${listKomentarApprover}">
+                                <td th:if="${approver.jabatan}" th:text="${approver.jabatan + ' - ' + approver.namaUser}">Nama</td>
+                                <td th:unless="${approver.jabatan}" th:text="${approver.namaUser}">Nama</td>
+                                <td th:text="${approver.tanggalString}">Tanggal</td>
+                                <td th:text="${approver.statusString}">Status</td>
+                                <td th:text="${approver.komentar}">Komentar</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${!#lists.isEmpty(listKomentarSigner)}">
+                    <div class="col-sm-10">
+                        <h4>Komentar Signer</h4>
+                    </div>
+                    <div class="col-sm-8">
+                        <table class="table table-condensed">
+                            <tr>
+                                <th style="text-align: center">Nama</th>
+                                <th style="text-align: center">Tanggal</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Komentar</th>
+                            </tr>
+                            <tr th:each="signer : ${listKomentarSigner}">
+                                <td th:if="${signer.jabatan}" th:text="${signer.jabatan + ' - ' + signer.namaUser}">Nama</td>
+                                <td th:unless="${signer.jabatan}" th:text="${signer.namaUser}">Nama</td>
+                                <td th:text="${signer.tanggalString}">Tanggal</td>
+                                <td th:text="${signer.statusString}">Status</td>
+                                <td th:text="${signer.komentar}">Komentar</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <a id="preview" class="btn btn-default">Cek Naskah/Format</a>
+                        <a th:if="${surat.id == null || surat.statusId == -1}" class="btn btn-default" type="button" data-toggle="modal" data-target="#modalDraft" id="btnDraft">Simpan Draft</a>
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalSelesai" id="btnSubmit">Selesai</button>
+                        <!--<a th:if="${surat.id != null and surat.tipe != null}" th:href="@{/preview-surat/}+ ${surat.id}" target="_blank" class="btn btn-submit">Preview Draft Surat</a>-->
+                        <a th:href="@{/daftar-riwayat}" class="btn btn-danger">Batal</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-offset-1 col-sm-10">
+                        <div class="modal modal-warning fade in" id="modalDraft">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Simpan Draft</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h3>Anda yakin untuk Simpan Draft surat ini?</h3>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Close</button>
+                                        <button name="action" type="submit" class="btn btn-default" value="btnSaveDraft" onclick="saveDraft()">Simpan Draft</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal modal-warning fade in" id="modalSelesai">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Selesai</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h3>Anda yakin pengerjaan surat ini sudah Selesai?</h3>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Close</button>
+                                        <button name="action" type="submit"  class="btn btn-default" value="btnSelesai" onclick="saveSelesai()">Selesai</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <div id="printarea">
+        <div class="row">
+            <div class="col-lg-2">
+
+            </div>
+            <div class="col-lg-8">
+                <div class="row">
+                    <div th:replace="nota-surat"/>
+                </div>
+                <div>
+                    <div th:replace="surat-dinas"/>
+                </div>
+            </div>
+            <div class="col-lg-2">
+
+            </div>
+        </div>
+    </div>
+    <br/>
+    <br/>
+    <hr/>
+</div>
+<div th:replace="fragments/footer :: footer"/>
+<script type="text/javascript" th:inline="javascript">
+    //<![CDATA[
+    var perihal = false;
+    var kepada = false;
+    var tipe = false;
+    var kodeKlasifikasi = false;
+    var listSigner = false;
+    var sifat = false;
+    var derajat = false;
+    var isiSurat = false;
+    var oversizeSurat = false;
+    var approverOptions = [];
+    var signerOptions = [];
+    var kepadaOptions = [];
+    var tembusanOptions = [];
+    var klasifikasiOptions = [];
+    var file;
+
+    var once = true
+
+    function saveDraft(){
+        document.getElementById('formBuatSurat').onsubmit = function() {
+            $('#modalDraft').modal('hide');
+            return true;
+        };
+    }
+    function saveSelesai(){
+        document.getElementById('formBuatSurat').onsubmit = function() {
+            $('#modalSelesai').modal('hide');
+            return true;
+        };
+    }
+
+    function appendData(item, index, arr) {
+        approverOptions.push(item.idUser);
+        $('#listApprover').append(new Option(item.jabatan + ' - ' + item.namaUser, item.idUser, true, true));
+    }
+
+    function titleCase(str) {
+       var splitStr = str.toLowerCase().split(' ');
+       for (var i = 0; i < splitStr.length; i++) {
+           // You do not need to check if i is larger than splitStr length, as your for does that for you
+           // Assign it back to the array
+           splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+       }
+       // Directly return the joined string
+       return splitStr.join(' ');
+    }
+
+    function appendDataSigner(item, index, arr) {
+        signerOptions.push(item.idUser);
+        $('#listSigner').append(new Option(item.jabatan + ' - ' + item.namaUser, item.idUser, true, true));
+    }
+
+    function toTitleCase(str) {
+        return str.replace(/\w\S*/g, function(txt){
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    }
+
+    function appendDataTembusan(item, index, arr) {
+        tembusanOptions.push(item.id);
+        $('#tembusan').append(new Option(item.jabatan + ' - ' + item.nama, item.id, true, true));
+    }
+
+    $(document).ready(function(){
+        function formatDate(date) {
+            var monthNames = [
+                "Januari", "Februari", "Maret",
+                "April", "Mei", "Juni", "Juli",
+                "Agustus", "September", "Oktober",
+                "November", "Desember"
+            ];
+
+            var day = date.getDate()
+            var monthIndex = date.getMonth();
+            var year = date.getFullYear();
+
+            return day + ' ' + monthNames[monthIndex] + ' ' + year;
+        }
+
+        tinymce.init({
+            selector: '#isi-surat',
+            height : "480",
+            setup: function(ed) {
+                ed.on('keyup', function(e) {
+                    (ed.getContent()!="") ? isiSurat = true : isiSurat = false;
+                    if($('#tipe').val()==2) sifat = true;
+                    var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+                    console.log("perihal : " + perihal + " kepada : " + kepada + " tipe : " + tipe + " kodeKlasifikasi : " + kodeKlasifikasi + " listSigner : " + listSigner + " sifat : " + sifat + " derajat : " + derajat + " isiSurat : " + isiSurat);
+                    (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+                    apply();
+                });
+                ed.on('init', function(args) {
+                    apply();
+                });
+        }});
+
+        $("#preview").click(function(){
+            document.getElementById('printarea').scrollIntoView();
+        });
+
+        $("#listApprover option[value='" + 1 + "']").prop("selected", true);
+        $("#strings option[value='" + 2 + "']").prop("selected", true);
+
+        if($('#tipe').val() == 2) {
+            $('#sifatHide').hide();
+        }
+
+        $('#btnSubmit').prop('disabled',true);
+
+        ($('#perihal').val()!="") ? perihal = true : perihal = false;
+        ($('#kepada').val()!="") ? kepada = true : kepada = false;
+        ($('#tipe').val()!="") ? tipe = true : tipe = false;
+        ($('#kodeKlasifikasi').val()!=null) ? kodeKlasifikasi = true : kodeKlasifikasi = false;
+        ($('#listSigner').val()!=null) ? listSigner = true : listSigner = false;
+        ($('#sifat').val()!="") ? sifat = true : sifat = false;
+        ($('#derajat').val()!="") ? derajat = true : derajat = false;
+        ($('#isi-surat').val()!="") ? isiSurat = true : isiSurat = false;
+
+        $('#perihal').keyup(function(){
+            if($('#tipe').val()==2) sifat = true;
+            (this.value!="") ? perihal = true : perihal = false;
+            var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+            (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            apply();
+        })
+
+
+        $('#fileSurat').change(function() {
+            if($('#fileSurat').val() != '' && $('#fileSurat').val() != null) {
+                var size = this.files[0].size / 1024 / 1024;
+                if(size > 25) {
+                    oversizeSurat = true;
+                } else {
+                    oversizeSurat = false;
+                }
+            } else {
+                oversizeSurat = false;
+            }
+            if(oversizeSurat) {
+                alert('Ukuran File Terlalu Besar, Maksimal 25 MB')
+            }
+            var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+            (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            if(!oversizeSurat) {
+                $('#btnDraft').prop('disabled', false)
+            } else {
+                $('#btnDraft').prop('disabled', true)
+            }
+            apply();
+        })
+
+        $('#tembusan').change(function() {
+            apply();
+        })
+
+        if($('#tipe').val()==2){
+            $('#kepada').change(function(){
+                if($('#tipe').val()==2) sifat = true;
+                (this.value!="") ? kepada = true : kepada = false;
+                var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+                (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+                apply();
+            })
+        }
+
+        $('#tipe').change(function(){
+            if($('#tipe').val()==2) sifat = true;
+            if($('#tipe').val()==1 && $('#sifat').val()==null) {
+                sifat = false;
+            } else {
+                sifat = true;
+            }
+            if($('#kepada').val()=="" || ($('#kepada').val()==null)) {
+                kepada = false;
+            } else {
+                kepada = true;
+            }
+            (this.value!="") ? tipe = true : tipe = false;
+            var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+            (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            apply();
+        })
+        $('#kodeKlasifikasi').change(function(){
+            if($('#tipe').val()==2) sifat = true;
+            (this.value!="") ? kodeKlasifikasi = true : kodeKlasifikasi = false;
+            var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+            (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            apply();
+        })
+        $('#listSigner').change(function(){
+            if($('#tipe').val()==2) sifat = true;
+            (this.value!="") ? listSigner = true : listSigner = false;
+            var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+            (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            apply();
+        })
+        $('#sifat').change(function () {
+            if ($('#tipe').val() == 1) {
+                (this.value != "") ? sifat = true : sifat = false;
+                var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+                (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            }
+            apply();
+        })
+        $('#derajat').change(function(){
+            if($('#tipe').val()==2) sifat = true;
+            (this.value!="") ? derajat = true : derajat = false;
+            var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+            (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+            apply();
+        })
+
+    });
+
+
+    $(function(){
+
+        $('#kodeKlasifikasi').select2({
+            minimumInputLength: 1,
+            allowClear: true,
+            placeholder: "Pilih Klasifikasi",
+            ajax: {
+                dataType: 'json',
+                url: '/ciptanaskah/json-kode-klasifikasi/',
+                delay: 200,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    }
+                },
+                processResults: function (data) {
+                    var myResults = [];
+                    $.each(data, function(index, item){
+                        myResults.push({
+                            id: index,
+                            text: item
+                        });
+                    });
+                    return {
+                        results: myResults
+                    };
+                },
+            }
+        })
+
+        $('#organisasi').select2({
+            minimumInputLength: 1,
+            allowClear: true,
+            placeholder: "Pilih Organisasi",
+            ajax: {
+                dataType: 'json',
+                url: '/ciptanaskah/json-organisasi/',
+                delay: 200,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    }
+                },
+                processResults: function (data) {
+                    var myResults = [];
+                    $.each(data, function(index, item){
+                        myResults.push({
+                            id: index,
+                            text: item
+                        });
+                    });
+                    return {
+                        results: myResults
+                    };
+                },
+            }
+        })
+
+        $('#listSigner').select2({
+            minimumInputLength: 1,
+            allowClear: true,
+            placeholder: "Pilih Pejabat Penandatangan",
+            ajax: {
+                dataType: 'json',
+                url: '/ciptanaskah/json-signer/',
+                delay: 200,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    }
+                },
+                processResults: function (data) {
+                    var myResults = [];
+                    $.each(data, function(index, item){
+                        myResults.push({
+                            id: index,
+                            text: item
+                        });
+                    });
+                    return {
+                        results: myResults
+                    };
+                },
+            }
+        })
+
+        $('#listApprover').select2({
+            multiple: true,
+            minimumInputLength: 1,
+            allowClear: true,
+            placeholder: "Ketik Nama/Email Approver",
+            ajax: {
+                dataType: 'json',
+                url: '/ciptanaskah/json-approver/',
+                delay: 200,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    }
+                },
+                processResults: function (data) {
+                    var myResults = [];
+                    $.each(data, function(index, item){
+                        myResults.push({
+                            id: index,
+                            text: item
+                        });
+                    });
+                    return {
+                        results: myResults
+                    };
+                },
+            }
+        })
+
+
+        $('#sifat').select2({
+            minimumInputLength: 0,
+            allowClear: true,
+            placeholder: "Pilih Sifat",
+            ajax: {
+                dataType: 'json',
+                url: '/ciptanaskah/json-sifat/',
+                delay: 100,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    }
+                },
+                processResults: function (data) {
+                    var myResults = [];
+                    $.each(data, function(index, item){
+                        myResults.push({
+                            id: index,
+                            text: item
+                        });
+                    });
+                    return {
+                        results: myResults
+                    };
+                },
+            }
+        })
+
+        $('#tembusan').select2({
+            multiple: true,
+            minimumInputLength: 0,
+            allowClear: true,
+            placeholder: "Ketik Nama User Tujuan",
+            ajax: {
+                dataType: 'json',
+                url: '/ciptanaskah/json-dropdown-kepada/',
+                delay: 200,
+                data: function(params) {
+                    return {
+                        search: params.term
+                    }
+                },
+                processResults: function (data) {
+                    var myResults = [];
+                    $.each(data, function(index, item){
+                        myResults.push({
+                            id: index,
+                            text: item
+                        });
+                    });
+                    return {
+                        results: myResults
+                    };
+                }
+            }
+        })
+
+
+
+        var list = /*[[${selectedApprover}]]*/ [];
+        if(list != null) {
+            list.forEach(appendData);
+            $('#listApprover').val(approverOptions).trigger('change');
+        }
+
+        var list2 = /*[[${selectedSigner}]]*/ [];
+        if(list != null) {
+            list2.forEach(appendDataSigner);
+            $('#listSigner').val(signerOptions[0]).trigger('change');
+        }
+
+        var klasifikasi = [[${klasifikasi}]];
+        if(klasifikasi != null) {
+            $('#kodeKlasifikasi').append(new Option(klasifikasi.nama, klasifikasi.id, true, true));
+            $('#kodeKlasifikasi').val(klasifikasi.id).trigger('change');
+        }
+
+        var sifatDetail = [[${sifatDetail}]];
+        if(sifatDetail != null) {
+            $('#sifat').append(new Option(sifatDetail.nama, sifatDetail.id, true, true));
+            $('#sifat').val(sifatDetail.id).trigger('change');
+        }
+
+        var selectedTembusan = /*[[${tembusan}]]*/ [];
+        if(selectedTembusan != null) {
+            selectedTembusan.forEach(appendDataTembusan);
+            $('#tembusan').val(tembusanOptions).trigger('change');
+        }
+
+        var statusId = [[${surat.statusId}]];
+        if(statusId != null && statusId != -1){
+            $('#listApprover').prop('disabled', true);
+            $('#listSigner').prop('disabled', true);
+        }
+
+    });
+
+    function changeForm() {
+        if($('#tipe').val() == 2) {
+            $('.nota-dinas').show();
+            $('.surat-dinas').hide();
+
+            $('#sifatHide').hide();
+            $('#lampiranHide').hide();
+
+            $('#fieldKepada').show();
+            $('#fieldKepadaText').hide();
+            $('#kepada').attr('disabled', true);
+
+            $("#fieldKepada").append('<select id="kepada" th:field="*{kepada}" name="kepada" class="form-control"> </select>')
+                .ready(function(){
+                    $('#kepada').select2({
+                        multiple: true,
+                        minimumInputLength: 0,
+                        allowClear: true,
+                        placeholder: "Ketik Nama User Tujuan",
+                        ajax: {
+                            dataType: 'json',
+                            url: '/ciptanaskah/json-dropdown-kepada/',
+                            delay: 200,
+                            data: function(params) {
+                                return {
+                                    search: params.term
+                                }
+                            },
+                            processResults: function (data) {
+                                var myResults = [];
+                                $.each(data, function(index, item){
+                                    myResults.push({
+                                        id: index,
+                                        text: item
+                                    });
+                                });
+                                return {
+                                    results: myResults
+                                };
+                            }
+                        }
+                    })
+
+                    $('#kepada').change(function(){
+                        if($('#tipe').val()==2) sifat = true;
+                        if(this.value!=null && this.value!="") {
+                            kepada = true
+                        } else {
+                            kepada = false;
+                        }
+                        var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+                        (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+                        apply();
+                    })
+
+                    function appendDataKepada(item, index, arr) {
+                        kepadaOptions.push(item.id);
+                        $('#kepada').append(new Option(item.jabatan +' - ' + item.nama, item.id, true, true));
+                    }
+
+                    var selectedKepada = /*[[${kepada}]]*/ [];
+
+                    if(selectedKepada != null) {
+                        selectedKepada.forEach(appendDataKepada);
+                        $('#kepada').val(kepadaOptions).trigger('change');
+                    }
+                });
+        } else {
+            $('.nota-dinas').hide();
+            $('.surat-dinas').show();
+
+            $('#sifatHide').show();
+
+            file = [[${surat.file}]];
+
+            if(showLampiran()) {
+                $('#lampiranHide').show();
+            }
+
+            document.getElementById("fieldKepada").innerHTML = "" ;
+            $('#fieldKepada').hide();
+            $('#fieldKepadaText').show();
+            if( $('#kepada').val()!=null ){
+                var res = $('#kepada').val().split(",");
+                if($.isNumeric(res[0]))$('#kepada').val("");
+            }
+            $('#kepada').attr('disabled', false);
+        }
+    }
+
+    function resetSifat(){
+        $('#sifat').val('');
+    }
+
+    function addDisplayInline(str) {
+        if(str.includes('display:inline')) {
+            return str;
+        }
+
+        return str.substring(0,2) +' style=\"display:inline\"'+ str.substring(2);
+    }
+    
+    function showLampiran() {
+        return ($('#fileSurat').val() != '' && $('#fileSurat').val() != null) || (file != null && file != '')
+    }
+
+    function apply() {
+
+        if($('#listSigner').val() != null){
+            $.ajax({
+                url: '/ciptanaskah/json-one-signer/'+$('#listSigner').val(),
+                type: 'GET',
+                success: function(data) {
+                    $('.namaPejabatPrint').html(data.nama);
+                    $('.namaJabatanPrint').html(data.jabatan);
+                    $('.dariPrint').html(data.jabatan);
+                    $('.nipPrint').html(data.nip);
+
+                }
+            });
+        }
+
+        if(tinymce.get('isi-surat') != null) {
+            $('.isi').html(tinymce.get('isi-surat').getContent());
+        }
+        $('.noSuratPrint').html($('#noSurat').val());
+
+        if($('#tipe').val() == 2){
+            if($('#kepada').val() != null) {
+                if($('#kepada').select2('data').length == 1) {
+                    $('.kepadaPrintNota').html(getJabatan($('#kepada').select2('data')[0].text));
+                } else {
+                    var str = '<ol style="margin-left: -27px; position: relative; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">';
+                    var i = 0;
+                    for (i = 0; i < $('#kepada').select2('data').length; i++) {
+                        str += '<li>' + getJabatan($('#kepada').select2('data')[i].text) + '</li>';
+                    }
+                    str += '</ol>'
+                    $('.kepadaPrintNota').html(str);
+
+                }
+            } else {
+                $('.kepadaPrintNota').html('');
+            }
+        } else if($('#tipe').val() == 1) {
+            $('.kepadaPrintSurat').html($('#kepada').val());
+        }
+
+        if($('#sifat').val() != null) {
+            $('.sifatPrint').html(toTitleCase($('#sifat').select2('data')[0].text));
+        } else {
+            $('.sifatPrint').html('');
+        }
+
+        file = [[${surat.file}]];
+
+        if($('#tipe').val() == 1 && showLampiran()){
+            var element = document.getElementById("lampiranToggle");
+            element.classList.remove("lampiranHide");
+        } else if($('#tipe').val() == 1 && !showLampiran()) {
+            var element = document.getElementById("lampiranToggle");
+            element.classList.add("lampiranHide");
+        }
+
+
+        $('.perihalPrint').html($('#perihal').val());
+
+        if($('#listSigner').val() != null) {
+            $('.namaPejabatPrint').html($('#listSigner').val().nama)
+        }
+
+        if($('#tembusan').val() != null) {
+            $('.tembusanTitle').html('Tembusan:');
+            if($('#tembusan').select2('data').length == 1){
+                var str = '<p>';
+                var i = 0;
+                for (i = 0; i < $('#tembusan').select2('data').length; i++) {
+                    str += $('#tembusan').select2('data')[i].text.split('-')[0];
+                }
+                str += '</p>'
+                $('.tembusanPrint').html(str);
+            } else {
+                var str2 = '<ol style="margin-left: -27px; position: relative; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;">';
+                var i = 0;
+                for (i = 0; i < $('#tembusan').select2('data').length; i++) {
+                    str2 += '<li>' + $('#tembusan').select2('data')[i].text.split('-')[0] + '</li>';
+                }
+                str2 += '</ol>';
+                $('.tembusanPrint').html(str2);
+            }
+        } else {
+            $('.tembusanTitle').html('');
+            $('.tembusanPrint').html('');
+        }
+    }
+
+    function getJabatan(kepada) {
+        var arr = kepada.split('-');
+
+        return arr[0];
+    }
+
+    function validateKepada() {
+        var kepadaVal = $('#kepada').val();
+        if($('#tipe').val()==2) sifat = true;
+        (kepadaVal!=null && kepadaVal!="") ? kepada = true : kepada = false;
+        var result = perihal && kepada && tipe && kodeKlasifikasi && listSigner && sifat && derajat && isiSurat && !oversizeSurat;
+        (result) ? $('#btnSubmit').prop('disabled', false) : $('#btnSubmit').prop('disabled', true);
+        apply();
+    }
+
+    function previewNoSurat() {
+        var idTipe = $('#tipe').val();
+        var idSigner = $('#listSigner').val();
+        var idKodeKlasifikasi = $('#kodeKlasifikasi').val();
+        var idSurat = ($('#id').val()) ? $('#id').val() : -1;
+
+        if(idTipe && idSigner && idKodeKlasifikasi){
+            $.ajax({
+                url: '/ciptanaskah/preview-no-surat/',
+                type: 'GET',
+                data: {idTipe: idTipe, idSigner: idSigner, idKodeKlasifikasi: idKodeKlasifikasi, idSurat: idSurat},
+                success: function(data) {
+                    console.log(data);
+                    $('#noSurat').val(data);
+                    $('.noSuratPrint').html($('#noSurat').val());
+
+                }
+            });
+        }
+
+    }
+
+    $('.nota-dinas').hide();
+    $('.surat-dinas').hide();
+
+    if($('#tipe').val() == 1 || $('#tipe').val() == 2) {
+        changeForm();
+    }
+
+
+    /*]]>*/
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js"></script>
+</body>
+</html>
